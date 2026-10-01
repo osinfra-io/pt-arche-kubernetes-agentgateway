@@ -26,3 +26,11 @@ run "default_regional" {
     error_message = "The internal AgentGateway service must expose port 80."
   }
 }
+
+run "default_manifests" {
+  command = apply
+
+  module {
+    source = "./tests/fixtures/default/regional/manifests"
+  }
+}

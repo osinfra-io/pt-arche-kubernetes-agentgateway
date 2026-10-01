@@ -10,7 +10,12 @@ The initial module intentionally provides ordinary HTTP connectivity only. LLM p
 
 ## 🔩 Usage
 
-The repository root is not a consumable module. Install `//regional` once in each Pneuma gateway cluster.
+The repository root is not a consumable module. Install both child modules once in each Pneuma gateway cluster, `//regional` before `//regional/manifests`.
+
+| Module | Purpose | Variables |
+| --- | --- | --- |
+| `//regional` | Installs the `agentgateway-crds` and `agentgateway` OCI Helm charts, creates an ambient-labeled `agentgateway-system` namespace, and provisions the internal HTTP `Gateway` using `gatewayClassName: agentgateway`. | [`regional/variables.tofu`](regional/variables.tofu) |
+| `//regional/manifests` | Creates the `AgentgatewayParameters` custom resource that configures the proxy's replicas, resources, and service. | [`regional/manifests/variables.tofu`](regional/manifests/variables.tofu) |
 
 ```hcl
 module "kubernetes_agentgateway" {
@@ -18,9 +23,15 @@ module "kubernetes_agentgateway" {
 
   labels = module.core_helpers.labels
 }
+
+module "kubernetes_agentgateway_manifests" {
+  source = "github.com/osinfra-io/pt-arche-kubernetes-agentgateway//regional/manifests?ref=<commit_sha>" # v0.1.0
+
+  labels = module.core_helpers.labels
+}
 ```
 
-The regional module installs the `agentgateway-crds` and `agentgateway` OCI Helm charts, creates an ambient-labeled `agentgateway-system` namespace, and provisions an internal HTTP `Gateway` using `gatewayClassName: agentgateway`.
+`AgentgatewayParameters` is a CRD installed by `//regional`'s own Helm charts, so `kubernetes_manifest` cannot plan it in the same apply as the chart install on a fresh cluster — it must be applied as a separate, later workspace. The `Gateway` resource stays in `//regional` because it relies on the `gateway.networking.k8s.io` CRD, which GKE's Gateway API feature (or the local Docker Desktop fixture) installs ahead of this module, not something `//regional` itself installs.
 
 ## 🛠️ Tools
 

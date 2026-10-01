@@ -32,10 +32,16 @@ resource "helm_release" "agentgateway_crds" {
 # Kubernetes Manifest Resource
 # https://search.opentofu.org/provider/hashicorp/kubernetes/latest/docs/resources/manifest
 
+# The gateway.networking.k8s.io Gateway CRD is a cluster-level prerequisite enabled by GKE's
+# Gateway API feature (and installed ahead of this module in the local Docker Desktop fixture),
+# not something this module's own Helm charts install. `kubernetes_manifest` reads that CRD's
+# schema at plan time, so it is safe to keep this resource here. AgentgatewayParameters, by
+# contrast, is a CRD installed by helm_release.agentgateway_crds in this same apply, so creating
+# it here would fail planning on a fresh cluster; it lives in //regional/manifests instead, applied
+# as a separate, later workspace.
 resource "kubernetes_manifest" "agentgateway" {
   depends_on = [
-    helm_release.agentgateway,
-    kubernetes_manifest.agentgateway_parameters
+    helm_release.agentgateway
   ]
 
   manifest = {
@@ -67,52 +73,6 @@ resource "kubernetes_manifest" "agentgateway" {
           protocol = "HTTP"
         }
       ]
-    }
-  }
-}
-
-resource "kubernetes_manifest" "agentgateway_parameters" {
-  depends_on = [
-    helm_release.agentgateway
-  ]
-
-  manifest = {
-    apiVersion = "agentgateway.dev/v1alpha1"
-    kind       = "AgentgatewayParameters"
-    metadata = {
-      labels    = var.labels
-      name      = local.gateway_name
-      namespace = var.namespace
-    }
-    spec = {
-      deployment = {
-        spec = {
-          replicas = var.proxy_replicas
-          template = {
-            metadata = {
-              labels = local.proxy_labels
-            }
-          }
-        }
-      }
-      logging = {
-        format = "json"
-      }
-      resources = {
-        limits = {
-          cpu    = var.proxy_cpu_limits
-          memory = var.proxy_memory_limits
-        }
-        requests = {
-          cpu    = var.proxy_cpu_requests
-          memory = var.proxy_memory_requests
-        }
-      }
-      service = {
-        spec = {
-          type = "ClusterIP"
-        }
-      }
     }
   }
 }

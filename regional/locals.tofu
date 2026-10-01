@@ -21,11 +21,5 @@ locals {
 
   gateway_name = "agentgateway-proxy"
 
-  proxy_labels = merge(var.labels, {
-    "tags.datadoghq.com/service" = "agentgateway-proxy"
-    "tags.datadoghq.com/source"  = "agentgateway"
-    "tags.datadoghq.com/version" = var.agentgateway_version
-  })
-
   proxy_service_account_name = local.gateway_name
 }

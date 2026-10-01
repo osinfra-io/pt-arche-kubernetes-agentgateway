@@ -1,0 +1,18 @@
+apiVersion: agentgateway.dev/v1alpha1
+kind: AgentgatewayParameters
+metadata:
+  name: agentgateway-proxy
+  namespace: agentgateway-system
+spec:
+  deployment:
+    spec:
+      replicas: 1
+      template:
+        metadata:
+          labels:
+            app: agentgateway
+  logging:
+    format: json
+  service:
+    spec:
+      type: ClusterIP

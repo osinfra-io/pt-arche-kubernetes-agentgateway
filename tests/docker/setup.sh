@@ -45,7 +45,7 @@ helm upgrade --install agentgateway \
   --version "${AGENTGATEWAY_VERSION}" \
   --wait
 
-kubectl apply --filename "${SCRIPT_DIR}/agentgateway.yaml"
+kubectl apply --filename "${SCRIPT_DIR}/manifests"
 
 kubectl rollout status deployment/agentgateway --namespace=agentgateway-system --timeout=180s
 kubectl rollout status deployment/agentgateway-proxy --namespace=agentgateway-system --timeout=180s
