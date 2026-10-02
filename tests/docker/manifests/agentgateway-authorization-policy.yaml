@@ -1,0 +1,24 @@
+apiVersion: security.istio.io/v1
+kind: AuthorizationPolicy
+metadata:
+  name: agentgateway-authentik
+  namespace: istio-ingress
+spec:
+  action: CUSTOM
+  provider:
+    name: authentik
+  rules:
+    - to:
+        - operation:
+            hosts:
+              - dev.localhost
+            notPaths:
+              - /agentgateway-test/health
+              - /agentgateway-test/metadata/*
+            paths:
+              - /agentgateway-test
+              - /agentgateway-test/*
+  targetRefs:
+    - group: gateway.networking.k8s.io
+      kind: Gateway
+      name: gateway
