@@ -5,11 +5,22 @@ metadata:
   namespace: agentgateway-system
 spec:
   hostnames:
-    - dev.localhost
+    - agentgateway.localhost
   parentRefs:
     - name: gateway
       namespace: istio-ingress
   rules:
+    - filters:
+        - requestRedirect:
+            path:
+              replaceFullPath: /ui/
+              type: ReplaceFullPath
+            statusCode: 302
+          type: RequestRedirect
+      matches:
+        - path:
+            type: Exact
+            value: /
     - backendRefs:
         - name: agentgateway-proxy-admin
           port: 15000

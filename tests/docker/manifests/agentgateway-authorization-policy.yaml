@@ -11,17 +11,11 @@ spec:
     - to:
         - operation:
             hosts:
-              - dev.localhost
+              - agentgateway.localhost
             notPaths:
               - /agentgateway-test/health
               - /agentgateway-test/metadata/*
-            paths:
-              - /agentgateway-test
-              - /agentgateway-test/*
-              - /api/*
-              - /config_dump
-              - /ui
-              - /ui/*
+              - /outpost.goauthentik.io/*
   targetRefs:
     - group: gateway.networking.k8s.io
       kind: Gateway

@@ -1,8 +1,8 @@
 apiVersion: gateway.networking.k8s.io/v1
 kind: HTTPRoute
 metadata:
-  name: agentgateway-ingress
-  namespace: agentgateway-system
+  name: authentik-outpost-agentgateway
+  namespace: authentik
 spec:
   hostnames:
     - agentgateway.localhost
@@ -11,9 +11,9 @@ spec:
       namespace: istio-ingress
   rules:
     - backendRefs:
-        - name: agentgateway-proxy
-          port: 80
+        - name: authentik-server
+          port: 9000
       matches:
         - path:
             type: PathPrefix
-            value: /agentgateway-test
+            value: /outpost.goauthentik.io

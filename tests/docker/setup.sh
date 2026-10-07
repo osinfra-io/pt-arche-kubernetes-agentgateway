@@ -92,24 +92,28 @@ for pod in ${proxy_pods}; do
 done
 
 curl --fail --insecure --silent --show-error \
-  https://dev.localhost/agentgateway-test/health >/dev/null
+  https://agentgateway.localhost/agentgateway-test/health >/dev/null
 curl --fail --insecure --silent --show-error \
-  https://dev.localhost/agentgateway-test/metadata/cluster-name >/dev/null
+  https://agentgateway.localhost/agentgateway-test/metadata/cluster-name >/dev/null
 
 redirect_headers="$(
   curl --insecure --silent --show-error --dump-header - --output /dev/null \
-    https://dev.localhost/agentgateway-test/auth
+    https://agentgateway.localhost/agentgateway-test/auth
 )"
 
 grep --quiet '^HTTP/.* 302' <<<"${redirect_headers}"
 grep --quiet '^location: http://localhost:9000/application/o/authorize/' <<<"${redirect_headers,,}"
+grep --quiet 'redirect_uri=https%3a%2f%2fagentgateway.localhost%2foutpost.goauthentik.io%2fcallback' <<<"${redirect_headers,,}"
+
+curl --fail --insecure --silent --show-error \
+  https://agentgateway.localhost/outpost.goauthentik.io/ping >/dev/null
 
 spoofed_status="$(
   curl --insecure --silent --show-error --output /dev/null --write-out '%{http_code}' \
     --header 'X-Authentik-Username: spoofed' \
     --header 'X-Authentik-Email: spoofed@example.com' \
     --header 'X-Authentik-Groups: admins' \
-    https://dev.localhost/agentgateway-test/auth
+    https://agentgateway.localhost/agentgateway-test/auth
 )"
 
 if [ "${spoofed_status}" != "302" ]; then
@@ -119,10 +123,10 @@ fi
 
 ui_headers="$(
   curl --insecure --silent --show-error --dump-header - --output /dev/null \
-    https://dev.localhost/ui/
+    https://agentgateway.localhost/ui/
 )"
 
 grep --quiet '^HTTP/.* 302' <<<"${ui_headers}"
 grep --quiet '^location: http://localhost:9000/application/o/authorize/' <<<"${ui_headers,,}"
 
-echo "AgentGateway setup complete. Open https://dev.localhost/agentgateway-test/auth or the admin UI at https://dev.localhost/ui/ to complete browser authentication."
+echo "AgentGateway setup complete. Open https://agentgateway.localhost/agentgateway-test/auth or the admin UI at https://agentgateway.localhost/ui/ to complete browser authentication."
