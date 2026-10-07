@@ -102,7 +102,7 @@ redirect_headers="$(
 )"
 
 grep --quiet '^HTTP/.* 302' <<<"${redirect_headers}"
-grep --quiet '^location: http://localhost:9000/application/o/authorize/' <<<"${redirect_headers,,}"
+grep --quiet '^location: https://authentik.localhost/application/o/authorize/' <<<"${redirect_headers,,}"
 grep --quiet 'redirect_uri=https%3a%2f%2fagentgateway.localhost%2foutpost.goauthentik.io%2fcallback' <<<"${redirect_headers,,}"
 
 curl --fail --insecure --silent --show-error \
@@ -127,6 +127,6 @@ ui_headers="$(
 )"
 
 grep --quiet '^HTTP/.* 302' <<<"${ui_headers}"
-grep --quiet '^location: http://localhost:9000/application/o/authorize/' <<<"${ui_headers,,}"
+grep --quiet '^location: https://authentik.localhost/application/o/authorize/' <<<"${ui_headers,,}"
 
 echo "AgentGateway setup complete. Open https://agentgateway.localhost/agentgateway-test/auth or the admin UI at https://agentgateway.localhost/ui/ to complete browser authentication."
