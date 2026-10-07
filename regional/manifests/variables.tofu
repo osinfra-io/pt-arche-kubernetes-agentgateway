@@ -4,7 +4,7 @@
 variable "agentgateway_version" {
   description = "AgentGateway Helm chart version, used to tag the proxy's Datadog version label"
   type        = string
-  default     = "v1.5.0"
+  default     = "v1.6.0"
 }
 
 variable "labels" {

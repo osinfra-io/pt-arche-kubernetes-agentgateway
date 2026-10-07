@@ -13,6 +13,9 @@ spec:
             app: agentgateway
   logging:
     format: json
+  rawConfig:
+    config:
+      adminAddr: 0.0.0.0:15000
   service:
     spec:
       type: ClusterIP

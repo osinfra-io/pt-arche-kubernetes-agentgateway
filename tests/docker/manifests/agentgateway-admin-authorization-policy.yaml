@@ -1,0 +1,19 @@
+apiVersion: security.istio.io/v1
+kind: AuthorizationPolicy
+metadata:
+  name: agentgateway-admin
+  namespace: agentgateway-system
+spec:
+  action: DENY
+  rules:
+    - from:
+        - source:
+            notPrincipals:
+              - cluster.local/ns/istio-ingress/sa/gateway-istio
+      to:
+        - operation:
+            ports:
+              - "15000"
+  selector:
+    matchLabels:
+      gateway.networking.k8s.io/gateway-name: agentgateway-proxy

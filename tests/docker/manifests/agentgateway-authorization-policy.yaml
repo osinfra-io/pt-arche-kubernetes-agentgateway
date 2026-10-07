@@ -18,6 +18,10 @@ spec:
             paths:
               - /agentgateway-test
               - /agentgateway-test/*
+              - /api/*
+              - /config_dump
+              - /ui
+              - /ui/*
   targetRefs:
     - group: gateway.networking.k8s.io
       kind: Gateway
