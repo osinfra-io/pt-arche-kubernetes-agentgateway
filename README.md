@@ -33,6 +33,9 @@ module "kubernetes_agentgateway_manifests" {
 
 `AgentgatewayParameters` is a CRD installed by `//regional`'s own Helm charts, so `kubernetes_manifest` cannot plan it in the same apply as the chart install on a fresh cluster — it must be applied as a separate, later workspace. The `Gateway` resource stays in `//regional` because it relies on the `gateway.networking.k8s.io` CRD, which GKE's Gateway API feature (or the local Docker Desktop fixture) installs ahead of this module, not something `//regional` itself installs.
 
+> [!TIP]
+> You can check the [tests/fixtures](tests/fixtures) directory for example configurations. These fixtures set up the system for testing by providing all the necessary initial code, thus creating good examples on which to base your configurations.
+
 ## 🛠️ Tools
 
 - [AgentGateway](https://agentgateway.dev/docs/kubernetes/latest/)
@@ -40,9 +43,15 @@ module "kubernetes_agentgateway_manifests" {
 - [osinfra-pre-commit-hooks](https://github.com/osinfra-io/pt-techne-pre-commit-hooks)
 - [pre-commit](https://github.com/pre-commit/pre-commit)
 
+## 📋 Skills and Knowledge
+
+Links to documentation and other resources required to develop and iterate in this repository successfully.
+
+- [AgentGateway](https://agentgateway.dev/docs/kubernetes/latest/)
+
 ## 🔍 Tests
 
-Mocked OpenTofu tests require no infrastructure or credentials.
+All tests are [mocked](https://opentofu.org/docs/cli/commands/test/#the-mock_provider-blocks) allowing us to test the module without creating infrastructure or requiring credentials. The trade-offs are acceptable in favor of speed and simplicity. In an OpenTofu test, a mocked provider or resource will generate fake data for all computed attributes that would normally be provided by the underlying provider APIs.
 
 ```none
 tofu init
