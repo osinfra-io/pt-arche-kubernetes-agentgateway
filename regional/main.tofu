@@ -3,8 +3,7 @@
 
 resource "helm_release" "agentgateway" {
   depends_on = [
-    helm_release.agentgateway_crds,
-    kubernetes_namespace_v1.agentgateway
+    helm_release.agentgateway_crds
   ]
 
   chart     = "${var.chart_repository}/agentgateway"
@@ -19,14 +18,11 @@ resource "helm_release" "agentgateway" {
 }
 
 resource "helm_release" "agentgateway_crds" {
-  depends_on = [
-    kubernetes_namespace_v1.agentgateway
-  ]
-
-  chart     = "${var.chart_repository}/agentgateway-crds"
-  name      = "agentgateway-crds"
-  namespace = var.namespace
-  version   = var.agentgateway_version
+  chart      = "${var.chart_repository}/agentgateway-crds"
+  name       = "agentgateway-crds"
+  namespace  = var.namespace
+  postrender = var.crds_postrender
+  version    = var.agentgateway_version
 }
 
 # Kubernetes Manifest Resource
@@ -74,18 +70,5 @@ resource "kubernetes_manifest" "agentgateway" {
         }
       ]
     }
-  }
-}
-
-# Kubernetes Namespace Resource
-# https://search.opentofu.org/provider/hashicorp/kubernetes/latest/docs/resources/namespace_v1
-
-resource "kubernetes_namespace_v1" "agentgateway" {
-  metadata {
-    labels = merge(var.labels, {
-      "istio.io/dataplane-mode" = "ambient"
-    })
-
-    name = var.namespace
   }
 }

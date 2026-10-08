@@ -37,6 +37,15 @@ variable "controller_memory_requests" {
   default     = "128Mi"
 }
 
+variable "crds_postrender" {
+  description = "Optional Helm post-renderer for the CRD chart; local fixtures use it to retain cluster-wide CRDs on uninstall"
+  type = object({
+    args        = optional(list(string), [])
+    binary_path = string
+  })
+  default = null
+}
+
 variable "labels" {
   description = "Labels applied to AgentGateway resources"
   type        = map(string)
@@ -46,5 +55,4 @@ variable "labels" {
 variable "namespace" {
   description = "Kubernetes namespace for AgentGateway"
   type        = string
-  default     = "agentgateway-system"
 }
