@@ -57,6 +57,12 @@ The `tests/docker` fixture layers AgentGateway onto the existing Docker Desktop 
 tests/docker/setup.sh
 ```
 
+To run the whole stack instead, install the [`platform-grouping` plugin](https://github.com/osinfra-io/pt-ai-plugins/tree/main/plugins/platform-grouping) and ask Copilot CLI to use the `test-local-gateway-stack` skill:
+
+```text
+Use the test-local-gateway-stack skill to test this checkout.
+```
+
 The fixture validates browser authentication through:
 
 ```text
