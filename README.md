@@ -10,9 +10,7 @@ The initial module intentionally provides ordinary HTTP connectivity only. LLM p
 
 ## 🔩 Usage
 
-The repository root is not a consumable module. Install both child modules once in each Pneuma gateway cluster, `//regional` before `//regional/manifests`.
-
-`AgentgatewayParameters` is a CRD installed by `//regional`'s own Helm charts, so `kubernetes_manifest` cannot plan it in the same apply as the chart install on a fresh cluster — it must be applied as a separate, later workspace. The `Gateway` resource stays in `//regional` because it relies on the `gateway.networking.k8s.io` CRD, which GKE's Gateway API feature (or the local Docker Desktop fixture) installs ahead of this module, not something `//regional` itself installs.
+Enable Gateway API before deploying. Apply `//regional` before `//regional/manifests` in a separate workspace: the latter cannot plan `AgentgatewayParameters` until the Helm charts have installed its CRD. The repository root is not a consumable module.
 
 > [!TIP]
 > You can check the [tests/fixtures](tests/fixtures) directory for example configurations. These fixtures set up the system for testing by providing all the necessary initial code, thus creating good examples on which to base your configurations.
