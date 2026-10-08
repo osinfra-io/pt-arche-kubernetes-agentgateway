@@ -1,5 +1,7 @@
 module "agentgateway" {
   source = "../../../../regional"
+
+  namespace = "agentgateway"
 }
 
 output "gateway_name" {

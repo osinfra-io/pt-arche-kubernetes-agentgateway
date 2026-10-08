@@ -13,35 +13,6 @@ resource "kubernetes_manifest" "agentgateway_parameters" {
       name      = local.gateway_name
       namespace = var.namespace
     }
-    spec = {
-      deployment = {
-        spec = {
-          replicas = var.proxy_replicas
-          template = {
-            metadata = {
-              labels = local.proxy_labels
-            }
-          }
-        }
-      }
-      logging = {
-        format = "json"
-      }
-      resources = {
-        limits = {
-          cpu    = var.proxy_cpu_limits
-          memory = var.proxy_memory_limits
-        }
-        requests = {
-          cpu    = var.proxy_cpu_requests
-          memory = var.proxy_memory_requests
-        }
-      }
-      service = {
-        spec = {
-          type = "ClusterIP"
-        }
-      }
-    }
+    spec = local.proxy_parameters_spec
   }
 }

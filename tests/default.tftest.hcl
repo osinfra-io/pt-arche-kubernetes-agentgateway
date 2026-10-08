@@ -17,8 +17,8 @@ run "default_regional" {
   }
 
   assert {
-    condition     = output.namespace == "agentgateway-system"
-    error_message = "The default namespace must be agentgateway-system."
+    condition     = output.namespace == "agentgateway"
+    error_message = "The module must expose the fixture's explicitly supplied agentgateway namespace."
   }
 
   assert {
@@ -32,5 +32,61 @@ run "default_manifests" {
 
   module {
     source = "./tests/fixtures/default/regional/manifests"
+  }
+}
+
+run "local_admin_listener" {
+  command = apply
+
+  module {
+    source = "./tests/fixtures/local-manifests"
+  }
+
+  assert {
+    condition     = output.agentgateway_parameters_manifest.spec.env[0].name == "ADMIN_ADDR" && output.agentgateway_parameters_manifest.spec.env[0].value == "0.0.0.0:15000"
+    error_message = "The local AgentGateway proxy must expose its admin listener on port 15000."
+  }
+}
+
+run "local_gateway_routing" {
+  command = apply
+
+  module {
+    source = "./tests/fixtures/local-routing"
+  }
+
+  assert {
+    condition     = output.diagnostic_route_manifest.spec.rules[0].filters[0].urlRewrite.path.replacePrefixMatch == "/istio-test"
+    error_message = "The AgentGateway diagnostic route must rewrite its prefix to /istio-test."
+  }
+
+  assert {
+    condition     = output.diagnostic_route_manifest.spec.rules[0].matches[0].path.value == "/agentgateway-test"
+    error_message = "The AgentGateway route must retain the diagnostic /agentgateway-test path."
+  }
+
+  assert {
+    condition     = output.diagnostic_ingress_manifest.spec.hostnames[0] == "agentgateway.localhost" && output.diagnostic_ingress_manifest.spec.rules[0].matches[0].path.value == "/agentgateway-test"
+    error_message = "The diagnostic route must be exposed only through the Istio ingress Gateway at agentgateway.localhost."
+  }
+
+  assert {
+    condition     = output.authentik_outpost_route_manifest.spec.rules[0].backendRefs[0].port == 80
+    error_message = "The Authentik outpost route must target the in-cluster HTTP Service port 80."
+  }
+
+  assert {
+    condition     = output.authentik_outpost_route_manifest.spec.rules[0].matches[0].path.value == "/outpost.goauthentik.io"
+    error_message = "The Authentik outpost path must remain routed through Istio."
+  }
+
+  assert {
+    condition     = output.admin_policy_manifest.spec.action == "DENY" && output.admin_policy_manifest.spec.rules[0].to[0].operation.ports[0] == "15000"
+    error_message = "Unauthorized in-mesh access to AgentGateway admin port 15000 must be denied."
+  }
+
+  assert {
+    condition     = output.admin_route_manifest.spec.rules[1].backendRefs[0].port == 15000
+    error_message = "The admin route must route through the Istio ingress Gateway to the protected admin service."
   }
 }

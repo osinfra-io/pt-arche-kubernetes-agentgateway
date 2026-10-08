@@ -16,7 +16,6 @@ variable "labels" {
 variable "namespace" {
   description = "Kubernetes namespace for AgentGateway"
   type        = string
-  default     = "agentgateway-system"
 }
 
 variable "proxy_cpu_limits" {
@@ -29,6 +28,12 @@ variable "proxy_cpu_requests" {
   description = "CPU request for the AgentGateway proxy"
   type        = string
   default     = "100m"
+}
+
+variable "proxy_env" {
+  description = "Additional environment variables for the AgentGateway proxy"
+  type        = map(string)
+  default     = {}
 }
 
 variable "proxy_memory_limits" {

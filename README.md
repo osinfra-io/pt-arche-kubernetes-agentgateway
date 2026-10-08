@@ -12,6 +12,8 @@ The initial module intentionally provides ordinary HTTP connectivity only. LLM p
 
 Enable Gateway API before deploying. Apply `//regional` before `//regional/manifests` in a separate workspace: the latter cannot plan `AgentgatewayParameters` until the Helm charts have installed its CRD. The repository root is not a consumable module.
 
+Create the namespace in the consuming root, label it `istio.io/dataplane-mode=ambient`, and pass its name explicitly to the deployment and manifest modules. The reusable modules do not create namespaces or select a default; local fixtures use `agentgateway`.
+
 > [!TIP]
 > You can check the [tests/fixtures](tests/fixtures) directory for example configurations. These fixtures set up the system for testing by providing all the necessary initial code, thus creating good examples on which to base your configurations.
 
@@ -30,7 +32,7 @@ Links to documentation and other resources required to develop and iterate in th
 
 ## 🔍 Tests
 
-All tests are [mocked](https://opentofu.org/docs/cli/commands/test/#the-mock_provider-blocks) allowing us to test the module without creating infrastructure or requiring credentials. The trade-offs are acceptable in favor of speed and simplicity. In an OpenTofu test, a mocked provider or resource will generate fake data for all computed attributes that would normally be provided by the underlying provider APIs.
+All OpenTofu tests are [mocked](https://opentofu.org/docs/cli/commands/test/#the-mock_provider-blocks) allowing us to test the module without creating infrastructure or requiring credentials. The trade-offs are acceptable in favor of speed and simplicity. In an OpenTofu test, a mocked provider or resource will generate fake data for all computed attributes that would normally be provided by the underlying provider APIs.
 
 ```none
 tofu init
