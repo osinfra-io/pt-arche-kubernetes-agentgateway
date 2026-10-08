@@ -4,7 +4,7 @@
 variable "agentgateway_version" {
   description = "AgentGateway Helm chart version"
   type        = string
-  default     = "v1.5.0"
+  default     = "v1.6.0"
 }
 
 variable "chart_repository" {

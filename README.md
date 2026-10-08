@@ -57,13 +57,21 @@ The `tests/docker` fixture layers AgentGateway onto the existing Docker Desktop 
 tests/docker/setup.sh
 ```
 
-The fixture validates ordinary HTTP traffic through:
+The fixture validates browser authentication through:
 
 ```text
 Istio gateway -> Authentik authorization -> AgentGateway -> pt-pneuma-istio-test
 ```
 
-AgentGateway v1.5.0 documents Istio support through 1.30 while the platform currently uses Istio 1.31. The fixture intentionally tests the unchanged platform version. Do not downgrade Istio or select an older AgentGateway release to make the test pass.
+Setup fails, and prints Helm, CRD, route, pod, and ztunnel diagnostics, unless the AgentGateway controller and proxy are ready and ambient-enrolled without an `istio-proxy` sidecar, the Gateway is `Programmed`, the HTTPRoutes are `Accepted` and `ResolvedRefs`, the public health and metadata paths return `200`, `/agentgateway-test/auth` redirects to Authentik with a callback on `agentgateway.localhost` even when spoofed `X-Authentik-*` headers are sent, and the Authentik outpost path answers on `agentgateway.localhost`. The fixture serves AgentGateway on its own host, `agentgateway.localhost`, through the Istio gateway's `*.localhost` listener; the Istio test workload stays on `dev.localhost` and Authentik on `authentik.localhost`. Open `https://agentgateway.localhost/agentgateway-test/auth` to complete sign-in; success returns the identity diagnostic built from the headers Authentik forwards.
+
+The AgentGateway admin UI is served at `https://agentgateway.localhost/ui/` (`/` redirects there) behind the Authentik policy, which protects every path on the host except the public health and metadata diagnostics and the Authentik outpost callback. The fixture binds the proxy admin listener to the pod IP, routes `/ui`, `/api`, and `/config_dump` from the Istio gateway to the `agentgateway-proxy-admin` Service, and applies a ztunnel `DENY` policy so only the Istio ingress gateway identity can reach port `15000`. Do not use `kubectl port-forward` to port `15000` for this test because it bypasses Authentik.
+
+Run `tests/docker/teardown.sh` before the Istio teardown. It removes the fixture manifests, both Helm releases, the AgentGateway CRDs, the controller-created `GatewayClass`, and the `agentgateway-system` namespace, then fails if any AgentGateway resources remain.
+
+### Compatibility result
+
+AgentGateway v1.6.0, the latest stable release, passes against the unchanged platform Istio 1.31.0 ambient mesh, Gateway API v1.4.0, and Authentik 2026.8.3: authenticated requests return the identity diagnostic, spoofed identity headers are overwritten or redirected, and ztunnel reports mutual TLS for `gateway-istio -> agentgateway-proxy -> istio-test`. Do not downgrade Istio or select an older AgentGateway release to make the test pass.
 
 ## 📦 Release
 
