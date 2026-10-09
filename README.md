@@ -14,6 +14,8 @@ Enable Gateway API before deploying. Apply `//regional` before `//regional/manif
 
 Create the namespace in the consuming root, label it `istio.io/dataplane-mode=ambient`, and pass its name explicitly to the deployment and manifest modules. The reusable modules do not create namespaces or select a default; local fixtures use `agentgateway`.
 
+The `//regional/admin` submodule publishes the admin UI and backing APIs through a dedicated Istio hostname while keeping port `15000` internal and restricted to the ingress principal. The caller must configure Authentik browser enforcement on that hostname before applying the admin routes. The local routing module calls the same submodule and retains moves for existing admin resources.
+
 > [!TIP]
 > You can check the [tests/fixtures](tests/fixtures) directory for example configurations. These fixtures set up the system for testing by providing all the necessary initial code, thus creating good examples on which to base your configurations.
 

@@ -3,12 +3,12 @@
 
 output "admin_policy_manifest" {
   description = "AgentGateway admin-port deny policy"
-  value       = kubernetes_manifest.agentgateway_admin_authorization.manifest
+  value       = module.admin.admin_policy_manifest
 }
 
 output "admin_route_manifest" {
   description = "Istio ingress route to the authenticated AgentGateway admin UI"
-  value       = kubernetes_manifest.agentgateway_admin.manifest
+  value       = module.admin.admin_route_manifest
 }
 
 output "authentik_outpost_route_manifest" {
@@ -28,5 +28,5 @@ output "diagnostic_ingress_manifest" {
 
 output "admin_service" {
   description = "ClusterIP Service exposing the AgentGateway admin port to the mesh"
-  value       = kubernetes_service_v1.agentgateway_admin
+  value       = module.admin.admin_service
 }

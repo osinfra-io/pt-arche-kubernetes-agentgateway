@@ -89,4 +89,14 @@ run "local_gateway_routing" {
     condition     = output.admin_route_manifest.spec.rules[1].backendRefs[0].port == 15000
     error_message = "The admin route must route through the Istio ingress Gateway to the protected admin service."
   }
+
+  assert {
+    condition     = output.admin_service.spec[0].type == "ClusterIP" && output.admin_policy_manifest.spec.rules[0].from[0].source.notPrincipals == ["cluster.local/ns/istio-ingress/sa/gateway-istio"]
+    error_message = "The admin listener must stay internal and accept only the trusted ingress identity."
+  }
+
+  assert {
+    condition     = [for match in output.admin_route_manifest.spec.rules[1].matches : match.path.value] == ["/ui", "/api", "/config_dump"]
+    error_message = "Shared admin routing must retain the UI and its backing admin endpoints."
+  }
 }
