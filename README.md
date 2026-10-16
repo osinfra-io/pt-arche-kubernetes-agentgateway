@@ -44,7 +44,7 @@ tofu test
 Run this command in Copilot CLI with the [`platform-grouping` plugin](https://github.com/osinfra-io/pt-ai-plugins/tree/main/plugins/platform-grouping) installed:
 
 ```text
-/platform-grouping:test-local-gateway-stack
+/platform-grouping:test-pneuma-stack
 ```
 
 Do not port-forward the proxy admin port `15000`: it bypasses Authentik. Access the admin UI through the authenticated Istio gateway.
