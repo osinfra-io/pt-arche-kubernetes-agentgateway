@@ -47,6 +47,8 @@ Run this command in Copilot CLI with the [`platform-grouping` plugin](https://gi
 /platform-grouping:local-integration-testing
 ```
 
+The fixtures, shared gateway, and verifiers live in [`pt-pneuma`](https://github.com/osinfra-io/pt-pneuma/tree/main/tests/integration) (`tests/integration`); this repository keeps only mocked tests.
+
 Do not port-forward the proxy admin port `15000`: it bypasses Authentik. Access the admin UI through the authenticated Istio gateway.
 
 ## 📦 Release
