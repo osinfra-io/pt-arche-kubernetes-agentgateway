@@ -6,7 +6,7 @@ resource "helm_release" "agentgateway" {
     helm_release.agentgateway_crds
   ]
 
-  chart     = "${var.chart_repository}/agentgateway"
+  chart     = local.agentgateway_chart
   name      = "agentgateway"
   namespace = var.namespace
 
@@ -18,7 +18,7 @@ resource "helm_release" "agentgateway" {
 }
 
 resource "helm_release" "agentgateway_crds" {
-  chart      = "${var.chart_repository}/agentgateway-crds"
+  chart      = local.agentgateway_crds_chart
   name       = "agentgateway-crds"
   namespace  = var.namespace
   postrender = var.crds_postrender
