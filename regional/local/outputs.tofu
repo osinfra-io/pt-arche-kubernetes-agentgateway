@@ -11,14 +11,14 @@ output "admin_route_manifest" {
   value       = kubernetes_manifest.agentgateway_admin.manifest
 }
 
+output "admin_service" {
+  description = "ClusterIP Service exposing the AgentGateway admin port to the mesh"
+  value       = kubernetes_service_v1.agentgateway_admin
+}
+
 output "authentik_outpost_route_manifest" {
   description = "Istio ingress route to the Authentik outpost"
   value       = kubernetes_manifest.authentik_outpost.manifest
-}
-
-output "diagnostic_route_manifest" {
-  description = "AgentGateway route to the shared diagnostic workload"
-  value       = kubernetes_manifest.agentgateway_backend.manifest
 }
 
 output "diagnostic_ingress_manifest" {
@@ -26,7 +26,7 @@ output "diagnostic_ingress_manifest" {
   value       = kubernetes_manifest.agentgateway_ingress.manifest
 }
 
-output "admin_service" {
-  description = "ClusterIP Service exposing the AgentGateway admin port to the mesh"
-  value       = kubernetes_service_v1.agentgateway_admin
+output "diagnostic_route_manifest" {
+  description = "AgentGateway route to the shared diagnostic workload"
+  value       = kubernetes_manifest.agentgateway_backend.manifest
 }

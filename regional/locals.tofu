@@ -2,6 +2,9 @@
 # https://opentofu.org/docs/language/values/locals
 
 locals {
+  agentgateway_chart      = "${var.chart_repository}/agentgateway"
+  agentgateway_crds_chart = "${var.chart_repository}/agentgateway-crds"
+
   controller_helm_values = yamlencode({
     commonLabels = var.labels
     controller = {

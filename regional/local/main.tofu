@@ -1,95 +1,6 @@
 # Kubernetes Manifest Resource
 # https://search.opentofu.org/provider/hashicorp/kubernetes/latest/docs/resources/manifest
 
-# Backend route rewriting keeps the existing diagnostic application shared by both gateways.
-resource "kubernetes_manifest" "agentgateway_backend" {
-  manifest = {
-    apiVersion = "gateway.networking.k8s.io/v1"
-    kind       = "HTTPRoute"
-    metadata = {
-      name      = "agentgateway-backend"
-      namespace = var.namespace
-    }
-    spec = {
-      hostnames = [var.hostname]
-      parentRefs = [
-        {
-          name = var.gateway_name
-        }
-      ]
-      rules = [
-        {
-          backendRefs = [
-            {
-              kind      = "Service"
-              name      = var.diagnostic_service
-              namespace = var.diagnostic_namespace
-              port      = var.diagnostic_service_port
-            }
-          ]
-          filters = [
-            {
-              type = "URLRewrite"
-              urlRewrite = {
-                path = {
-                  replacePrefixMatch = "/istio-test"
-                  type               = "ReplacePrefixMatch"
-                }
-              }
-            }
-          ]
-          matches = [
-            {
-              path = {
-                type  = "PathPrefix"
-                value = "/agentgateway-test"
-              }
-            }
-          ]
-        }
-      ]
-    }
-  }
-}
-
-resource "kubernetes_manifest" "agentgateway_ingress" {
-  manifest = {
-    apiVersion = "gateway.networking.k8s.io/v1"
-    kind       = "HTTPRoute"
-    metadata = {
-      name      = "agentgateway-ingress"
-      namespace = var.namespace
-    }
-    spec = {
-      hostnames = [var.hostname]
-      parentRefs = [
-        {
-          name      = var.istio_gateway_name
-          namespace = var.istio_gateway_namespace
-        }
-      ]
-      rules = [
-        {
-          backendRefs = [
-            {
-              name = var.gateway_name
-              port = 80
-            }
-          ]
-          matches = [
-            {
-              path = {
-                type  = "PathPrefix"
-                value = "/agentgateway-test"
-              }
-            }
-          ]
-        }
-      ]
-    }
-  }
-}
-
 resource "kubernetes_manifest" "agentgateway_admin" {
   manifest = {
     apiVersion = "gateway.networking.k8s.io/v1"
@@ -195,6 +106,95 @@ resource "kubernetes_manifest" "agentgateway_admin_authorization" {
           "gateway.networking.k8s.io/gateway-name" = var.gateway_name
         }
       }
+    }
+  }
+}
+
+# Backend route rewriting keeps the existing diagnostic application shared by both gateways.
+resource "kubernetes_manifest" "agentgateway_backend" {
+  manifest = {
+    apiVersion = "gateway.networking.k8s.io/v1"
+    kind       = "HTTPRoute"
+    metadata = {
+      name      = "agentgateway-backend"
+      namespace = var.namespace
+    }
+    spec = {
+      hostnames = [var.hostname]
+      parentRefs = [
+        {
+          name = var.gateway_name
+        }
+      ]
+      rules = [
+        {
+          backendRefs = [
+            {
+              kind      = "Service"
+              name      = var.diagnostic_service
+              namespace = var.diagnostic_namespace
+              port      = var.diagnostic_service_port
+            }
+          ]
+          filters = [
+            {
+              type = "URLRewrite"
+              urlRewrite = {
+                path = {
+                  replacePrefixMatch = "/istio-test"
+                  type               = "ReplacePrefixMatch"
+                }
+              }
+            }
+          ]
+          matches = [
+            {
+              path = {
+                type  = "PathPrefix"
+                value = "/agentgateway-test"
+              }
+            }
+          ]
+        }
+      ]
+    }
+  }
+}
+
+resource "kubernetes_manifest" "agentgateway_ingress" {
+  manifest = {
+    apiVersion = "gateway.networking.k8s.io/v1"
+    kind       = "HTTPRoute"
+    metadata = {
+      name      = "agentgateway-ingress"
+      namespace = var.namespace
+    }
+    spec = {
+      hostnames = [var.hostname]
+      parentRefs = [
+        {
+          name      = var.istio_gateway_name
+          namespace = var.istio_gateway_namespace
+        }
+      ]
+      rules = [
+        {
+          backendRefs = [
+            {
+              name = var.gateway_name
+              port = 80
+            }
+          ]
+          matches = [
+            {
+              path = {
+                type  = "PathPrefix"
+                value = "/agentgateway-test"
+              }
+            }
+          ]
+        }
+      ]
     }
   }
 }
