@@ -21,6 +21,12 @@ locals {
       "ad.datadoghq.com/controller.logs" = local.agentgateway_log_config
     }
 
+    podLabels = merge(var.labels, {
+      "tags.datadoghq.com/env"     = module.core_helpers.environment
+      "tags.datadoghq.com/service" = "agentgateway"
+      "tags.datadoghq.com/version" = var.agentgateway_version
+    })
+
     resources = {
       limits = {
         cpu    = var.controller_cpu_limits

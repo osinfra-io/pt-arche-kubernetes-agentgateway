@@ -42,6 +42,16 @@ run "controller_log_service" {
     source = "./regional"
   }
 
+  override_module {
+    target = module.core_helpers
+    outputs = {
+      env         = "prod"
+      environment = "production"
+      region      = "us-east1"
+      zone        = "b"
+    }
+  }
+
   variables {
     namespace = "agentgateway"
   }
@@ -55,6 +65,15 @@ run "controller_log_service" {
     ]
     error_message = "agentgateway controller logs must use the canonical agentgateway service/source."
   }
+
+  assert {
+    condition = yamldecode(helm_release.agentgateway.values[0]).podLabels == {
+      "tags.datadoghq.com/env"     = "production"
+      "tags.datadoghq.com/service" = "agentgateway"
+      "tags.datadoghq.com/version" = var.agentgateway_version
+    }
+    error_message = "agentgateway controller pod templates must carry full unified service tags."
+  }
 }
 
 run "proxy_env" {
@@ -62,6 +81,16 @@ run "proxy_env" {
 
   module {
     source = "./regional/manifests"
+  }
+
+  override_module {
+    target = module.core_helpers
+    outputs = {
+      env         = "prod"
+      environment = "production"
+      region      = "us-east1"
+      zone        = "b"
+    }
   }
 
   variables {
@@ -88,5 +117,14 @@ run "proxy_env" {
       ]
     )
     error_message = "agentgateway proxy log annotations and unified service tags must agree on the canonical agentgateway service."
+  }
+
+  assert {
+    condition = output.agentgateway_parameters_manifest.spec.deployment.spec.template.metadata.labels == {
+      "tags.datadoghq.com/env"     = "production"
+      "tags.datadoghq.com/service" = "agentgateway"
+      "tags.datadoghq.com/version" = var.agentgateway_version
+    }
+    error_message = "agentgateway proxy pod templates must carry full unified service tags without a nonstandard source label."
   }
 }

@@ -15,8 +15,8 @@ locals {
   gateway_name = "agentgateway-proxy"
 
   proxy_labels = merge(var.labels, {
+    "tags.datadoghq.com/env"     = module.core_helpers.environment
     "tags.datadoghq.com/service" = "agentgateway"
-    "tags.datadoghq.com/source"  = "agentgateway"
     "tags.datadoghq.com/version" = var.agentgateway_version
   })
 
