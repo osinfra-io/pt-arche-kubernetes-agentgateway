@@ -4,12 +4,29 @@
 locals {
   agentgateway_chart      = "${var.chart_repository}/agentgateway"
   agentgateway_crds_chart = "${var.chart_repository}/agentgateway-crds"
+  agentgateway_log_config = jsonencode([
+    {
+      service = "agentgateway"
+      source  = "agentgateway"
+    }
+  ])
 
   controller_helm_values = yamlencode({
     commonLabels = var.labels
     controller = {
       replicaCount = 1
     }
+
+    podAnnotations = {
+      "ad.datadoghq.com/controller.logs" = local.agentgateway_log_config
+    }
+
+    podLabels = merge(var.labels, {
+      "tags.datadoghq.com/env"     = module.core_helpers.environment
+      "tags.datadoghq.com/service" = "agentgateway"
+      "tags.datadoghq.com/version" = var.agentgateway_version
+    })
+
     resources = {
       limits = {
         cpu    = var.controller_cpu_limits

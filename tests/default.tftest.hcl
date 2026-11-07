@@ -35,11 +35,62 @@ run "default_manifests" {
   }
 }
 
+run "controller_log_service" {
+  command = plan
+
+  module {
+    source = "./regional"
+  }
+
+  override_module {
+    target = module.core_helpers
+    outputs = {
+      env         = "prod"
+      environment = "production"
+      region      = "us-east1"
+      zone        = "b"
+    }
+  }
+
+  variables {
+    namespace = "agentgateway"
+  }
+
+  assert {
+    condition = jsondecode(yamldecode(helm_release.agentgateway.values[0]).podAnnotations["ad.datadoghq.com/controller.logs"]) == [
+      {
+        service = "agentgateway"
+        source  = "agentgateway"
+      }
+    ]
+    error_message = "agentgateway controller logs must use the canonical agentgateway service/source."
+  }
+
+  assert {
+    condition = yamldecode(helm_release.agentgateway.values[0]).podLabels == {
+      "tags.datadoghq.com/env"     = "production"
+      "tags.datadoghq.com/service" = "agentgateway"
+      "tags.datadoghq.com/version" = var.agentgateway_version
+    }
+    error_message = "agentgateway controller pod templates must carry full unified service tags."
+  }
+}
+
 run "proxy_env" {
   command = apply
 
   module {
     source = "./regional/manifests"
+  }
+
+  override_module {
+    target = module.core_helpers
+    outputs = {
+      env         = "prod"
+      environment = "production"
+      region      = "us-east1"
+      zone        = "b"
+    }
   }
 
   variables {
@@ -53,5 +104,27 @@ run "proxy_env" {
   assert {
     condition     = output.agentgateway_parameters_manifest.spec.env[0].name == "ADMIN_ADDR" && output.agentgateway_parameters_manifest.spec.env[0].value == "0.0.0.0:15000"
     error_message = "The proxy_env variable must set the AgentGateway proxy environment, e.g. exposing its admin listener on port 15000."
+  }
+
+  assert {
+    condition = (
+      output.agentgateway_parameters_manifest.spec.deployment.spec.template.metadata.labels["tags.datadoghq.com/service"] == "agentgateway" &&
+      jsondecode(output.agentgateway_parameters_manifest.spec.deployment.spec.template.metadata.annotations["ad.datadoghq.com/agentgateway.logs"]) == [
+        {
+          service = "agentgateway"
+          source  = "agentgateway"
+        }
+      ]
+    )
+    error_message = "agentgateway proxy log annotations and unified service tags must agree on the canonical agentgateway service."
+  }
+
+  assert {
+    condition = output.agentgateway_parameters_manifest.spec.deployment.spec.template.metadata.labels == {
+      "tags.datadoghq.com/env"     = "production"
+      "tags.datadoghq.com/service" = "agentgateway"
+      "tags.datadoghq.com/version" = var.agentgateway_version
+    }
+    error_message = "agentgateway proxy pod templates must carry full unified service tags without a nonstandard source label."
   }
 }
